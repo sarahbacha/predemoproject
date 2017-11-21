@@ -1,0 +1,119 @@
+swagger: '2.0'
+info:
+  version: v1
+  title: myapipredemo
+  description: Not needed
+host: 'localhost:2002'
+basePath: /predemoapi
+schemes:
+  - http
+  - https
+produces:
+  - application/json
+paths:
+  /v1/customers:
+    get:
+      tags:
+        - Customer
+      description: Gets all customers from the system that the user has access to
+      operationId: getCustomer
+      produces:
+        - application/json
+      x-swagger-router-controller: Customer
+      responses:
+        '200':
+          description: customer response
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/v1customers'
+        '404':
+          description: customer response
+          schema:
+            type: object
+        '500':
+          description: customer response
+          schema:
+            type: object
+      parameters:
+        - name: filter
+          in: query
+          description: >-
+            Filter defining fields, where, order, offset, and limit - must be a
+            JSON-encoded string ({"something":"value"})
+          type: string
+    post:
+      tags:
+        - Customer
+      description: Posts all customers from the system that the user has access to
+      operationId: postCustomer
+      produces:
+        - application/json
+      consumes:
+        - application/json
+      x-swagger-router-controller: Customer
+      responses:
+        '204':
+          description: customer response
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/v1customers'
+        '404':
+          description: customer response
+          schema:
+            type: object
+        '500':
+          description: customer response
+          schema:
+            type: object
+      parameters:
+        - name: v1/customers
+          in: body
+          schema:
+            $ref: '#/definitions/v1customers'
+definitions:
+  ApiError:
+    type: object
+    properties:
+      code:
+        type: integer
+        format: int32
+      message:
+        type: string
+      fields:
+        type: string
+  v1customers:
+    type: object
+    properties:
+      name:
+        type: string
+    required:
+      - name
+responses:
+  Standard500ErrorResponse:
+    description: An unexpected error occured.
+    schema:
+      $ref: '#/definitions/ApiError'
+  PersonDoesNotExistResponse:
+    description: Person does not exist.
+x-ibm-configuration:
+  testable: true
+  enforced: true
+  cors:
+    enabled: true
+  gateway: datapower-gateway
+  catalogs:
+    apic-dev:
+      properties:
+        runtime-url: $(TARGET_URL)
+    sb:
+      properties:
+        runtime-url: 'http://localhost:8080'
+  assembly:
+    execute:
+      - invoke:
+          target-url: $(runtime-url)$(request.path)$(request.search)
+          tls-profile: ''
+          secure-gateway: false
+    catch: []
